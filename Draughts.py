@@ -59,12 +59,10 @@ muteImageGreyName = "./images/MuteGrey.jpg"
 infoImageName = "./images/Info.jpg"
 infoImageGreyName = "./images/InfoGrey.jpg"
 
-TOP_LEFT = (35,22)
-TOP_RIGHT = (452,22)
-BOT_LEFT = (35,438)
-BOT_RIGHT = (452,438)
 GRID_SIZE_X = 52
 GRID_SIZE_Y = 52
+TOP_LEFT = (25,27)
+
 A1_location = (62,50)  #Used to draw pieces in the correct place!
 PIECE_SIZE = 20
 
@@ -72,8 +70,10 @@ PIECE_SIZE = 20
 pygame.mixer.init()
 clickSound = pygame.mixer.Sound("./sounds/click.mp3")
 pygame.mixer.music.load("./sounds/relaxing-music.mp3") 
+
+musicOn = False
 pygame.mixer.music.play(-1,0.0)
-musicOn = True
+pygame.mixer.music.pause()
 
 #fonts
 pygame.font.init() # you have to call this at the start, 
@@ -175,6 +175,13 @@ def MuteButtonCallback():
 def InfoButtonCallback():
     print("Info pressed...")
 
+def DrawGreenLinesOverTheBoard(width): 
+    for i in range(9):
+        pygame.draw.line(surface,COL_GREEN,(TOP_LEFT[0]+i*GRID_SIZE_X, TOP_LEFT[1]),(TOP_LEFT[0]+i*GRID_SIZE_X, TOP_LEFT[0] + 8*GRID_SIZE_Y),width)
+    for i in range(9):
+        pygame.draw.line(surface,COL_GREEN,(TOP_LEFT[0], 27+i*GRID_SIZE_Y),(TOP_LEFT[0]+8*GRID_SIZE_X, TOP_LEFT[1]+i*GRID_SIZE_Y),width)
+
+
 ##############################################################################
 # MAIN
 ##############################################################################
@@ -194,14 +201,7 @@ while running:
     # Using blit to copy the background grid onto the blank screen
     surface.blit(backImage, (0, 0))
 
-    GRID_SIZE_X = 52
-    for i in range(9):
-        pygame.draw.line(surface,COL_GREEN,(24+i*GRID_SIZE_X, 27),(24+i*GRID_SIZE_X, 444),2)
-
-    GRID_SIZE_Y = 52
-    for i in range(9):
-        pygame.draw.line(surface,COL_GREEN,(24, 27+i*GRID_SIZE_Y),(440, 27+i*GRID_SIZE_Y),2)
-
+    DrawGreenLinesOverTheBoard(3)
     
 
     theUndoButton.DrawSelf()

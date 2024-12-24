@@ -48,6 +48,7 @@ pygame.display.set_caption('Draughts - Mark Reed (c) 2024')
 
 COL_BLACK = (0,0,0)
 COL_WHITE = (255,255,255)
+COL_GREEN = (0,255,0)
 BACK_FILL_COLOUR = COL_WHITE
 
 backImageName = "./images/draughts grid.jpg"
@@ -192,6 +193,16 @@ while running:
 
     # Using blit to copy the background grid onto the blank screen
     surface.blit(backImage, (0, 0))
+
+    GRID_SIZE_X = 52
+    for i in range(9):
+        pygame.draw.line(surface,COL_GREEN,(24+i*GRID_SIZE_X, 27),(24+i*GRID_SIZE_X, 444),2)
+
+    GRID_SIZE_Y = 52
+    for i in range(9):
+        pygame.draw.line(surface,COL_GREEN,(24, 27+i*GRID_SIZE_Y),(440, 27+i*GRID_SIZE_Y),2)
+
+    
 
     theUndoButton.DrawSelf()
     theMuteButton.DrawSelf()

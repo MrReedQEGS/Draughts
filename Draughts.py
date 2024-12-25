@@ -36,17 +36,18 @@ BLACK_PIECE = 1
 WHITE_PIECE = 2
 theGameGrid = MyGameGrid(8,8,[EMPTY_SQUARE,BLACK_PIECE,WHITE_PIECE],0)
 
-DEBUG_ON = False
+DEBUG_ON = True
 
 GRID_SIZE_X = 52
 GRID_SIZE_Y = 52
 TOP_LEFT = (26,28)
 
-SCREEN_WIDTH = 471
+SCREEN_WIDTH = 647
 SCREEN_HEIGHT = 502
 
+BUTTON_X_VALUE = 556
 BUTTON_Y_VALUE  = 470
-BUTTON_X_VALUE = 381
+
 
 gridLinesOn = False
 
@@ -147,9 +148,6 @@ def WhatSquareAreWeIn(aPosition):
         print("Col  =  {}".format(col))
         print("row  =  {}".format(row))
 
-        letters = ["a","b","c","d","e","f","g","h"]
-        print("{}{}".format(letters[col],row+1))
-
     return col,row
 
 def HandleInput(running):
@@ -162,9 +160,8 @@ def HandleInput(running):
             running = False
 
         if event.type == pygame.MOUSEBUTTONUP:
-
             somePos = pygame.mouse.get_pos()
-            print(somePos)
+            currentSquare = WhatSquareAreWeIn(somePos)
                 
     return running
 
@@ -190,7 +187,6 @@ def DrawGreenLinesOverTheBoard(width):
             pygame.draw.line(surface,COL_GREEN,(TOP_LEFT[0]+i*GRID_SIZE_X, TOP_LEFT[1]),(TOP_LEFT[0]+i*GRID_SIZE_X, TOP_LEFT[0] + 8*GRID_SIZE_Y),width)
         for i in range(9):
             pygame.draw.line(surface,COL_GREEN,(TOP_LEFT[0], 27+i*GRID_SIZE_Y),(TOP_LEFT[0]+8*GRID_SIZE_X, TOP_LEFT[1]+i*GRID_SIZE_Y),width)
-
 
 ##############################################################################
 # MAIN

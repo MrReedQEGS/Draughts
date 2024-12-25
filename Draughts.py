@@ -26,20 +26,7 @@ from UsefulClasses import perpetualTimer,MyGameGrid,MyClickableImageButton
 import tkinter
 from tkinter import messagebox
 
-##############################################################################
-# CLASSES
-##############################################################################
-class Piece(pygame.sprite.Sprite): 
-    def __init__(self, newImage, newPos,newParentSurface): 
-        super().__init__() 
-  
-        self.image = newImage
-        self.pos = newPos
-        self.rect = self.image.get_rect()
-        self.parentSurface = newParentSurface
-
-    def DrawSelf(self):
-        print("I live at ", self.pos)
+from DraughtsClasses import Piece
 
 ##############################################################################
 # VARIABLES
@@ -50,6 +37,8 @@ EMPTY_SQUARE = 0
 BLACK_PIECE = 1
 WHITE_PIECE = 2
 theGameGrid = MyGameGrid(8,8,[EMPTY_SQUARE,BLACK_PIECE,WHITE_PIECE],0)
+
+pieceNum = 0
 
 DEBUG_ON = True
 
@@ -89,8 +78,8 @@ infoImageGreyName = "./images/InfoGrey.jpg"
 
 player1PieceImageName = "./images/player1Piece.png"
 
-A1_location = (62,50)  #Used to draw pieces in the correct place!
 PIECE_SIZE = 20
+draggingPiece = None
 
 #sounds
 pygame.mixer.init()
@@ -177,22 +166,42 @@ def WhatSquareAreWeIn(aPosition):
 
 def HandleInput(running):
     
-    global waitingForYesNo
+    global waitingForYesNo,draggingPiece
 
     for event in pygame.event.get():
 
         if event.type == pygame.QUIT:
             running = False
 
-        if event.type == pygame.MOUSEBUTTONUP:
+        if event.type == pygame.MOUSEBUTTONDOWN:
             somePos = pygame.mouse.get_pos()
             currentSquare = WhatSquareAreWeIn(somePos)
+
+            #did we click on a piece?
+            for piece in allPieces:
+               if(piece.ClickedOnMe(somePos)):
+                draggingPiece = piece
+                print("piced me up piece : ",draggingPiece._pieceNum)
+
+        if event.type == pygame.MOUSEBUTTONUP:
+            #Let go of a piece if we have one
+            if(draggingPiece != None):
+                print("droping piece : ",draggingPiece._pieceNum)
+                draggingPiece = None
+                
+
+
+               
                 
     return running
 
 def UndoButtonCallback():
     print("undo pressed...")
-
+    #Testing a piece move
+    #for piece in allPieces:
+    #    currentPos = piece.GetPos()
+    #    piece.SetPos([currentPos[0],currentPos[1] + 52])
+    
 def MuteButtonCallback():
     global musicOn
     if(musicOn):
@@ -224,9 +233,12 @@ theUndoButton = MyClickableImageButton(BUTTON_X_VALUE + 30*2,BUTTON_Y_VALUE,undo
 theMuteButton = MyClickableImageButton(BUTTON_X_VALUE + 30,BUTTON_Y_VALUE,muteImage,muteGreyImage,surface,MuteButtonCallback)
 theInfoButton = MyClickableImageButton(BUTTON_X_VALUE,BUTTON_Y_VALUE,infoImage,infoGreyImage,surface,InfoButtonCallback)
 
-someGamePiece = Piece(player1PieceImage,(30, 33))
-
 allPieces = []
+someGamePiece = Piece(pieceNum,player1PieceImage,[30, 33],surface)
+pieceNum = pieceNum + 1
+allPieces.append(someGamePiece)
+someGamePiece = Piece(pieceNum,player1PieceImage,[82, 33],surface)
+pieceNum = pieceNum + 1
 allPieces.append(someGamePiece)
 
 #game loop

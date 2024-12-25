@@ -174,25 +174,28 @@ def HandleInput(running):
             running = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            somePos = pygame.mouse.get_pos()
-            currentSquare = WhatSquareAreWeIn(somePos)
-
+            currentMousePos = pygame.mouse.get_pos()
+            
             #did we click on a piece?
             for piece in allPieces:
-               if(piece.ClickedOnMe(somePos)):
+               if(piece.ClickedOnMe(currentMousePos)):
                 draggingPiece = piece
-                print("piced me up piece : ",draggingPiece._pieceNum)
-
+                
         if event.type == pygame.MOUSEBUTTONUP:
+            currentMousePos = pygame.mouse.get_pos()
+            currentSquare = WhatSquareAreWeIn(currentMousePos)
+            print("Square dropped in : ", currentSquare)
+
             #Let go of a piece if we have one
             if(draggingPiece != None):
-                print("droping piece : ",draggingPiece._pieceNum)
+                somePos = draggingPiece.GetPos()
+
+                dropLocation = [TOP_LEFT[0] + currentSquare[0]*GRID_SIZE_X+5,TOP_LEFT[1] + currentSquare[1]*GRID_SIZE_Y+5]
+                draggingPiece.SetPos(dropLocation)
                 draggingPiece = None
                 
-
-
-               
-                
+        
+             
     return running
 
 def UndoButtonCallback():
@@ -200,7 +203,7 @@ def UndoButtonCallback():
     #Testing a piece move
     #for piece in allPieces:
     #    currentPos = piece.GetPos()
-    #    piece.SetPos([currentPos[0],currentPos[1] + 52])
+    #    piece.SetPos(([currentPos[0],currentPos[1] + 52]))
     
 def MuteButtonCallback():
     global musicOn

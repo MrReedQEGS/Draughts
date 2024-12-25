@@ -18,7 +18,7 @@ class Piece(pygame.sprite.Sprite):
 
     def SetPos(self,newPos):
         self._pos = newPos
-        self._rect =(newPos[0],newPos[1])
+        self._rect.topleft=(newPos[0],newPos[1])
 
     def GetPos(self):
         return self._pos

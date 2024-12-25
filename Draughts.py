@@ -27,6 +27,21 @@ import tkinter
 from tkinter import messagebox
 
 ##############################################################################
+# CLASSES
+##############################################################################
+class Piece(pygame.sprite.Sprite): 
+    def __init__(self, newImage, newPos,newParentSurface): 
+        super().__init__() 
+  
+        self.image = newImage
+        self.pos = newPos
+        self.rect = self.image.get_rect()
+        self.parentSurface = newParentSurface
+
+    def DrawSelf(self):
+        print("I live at ", self.pos)
+
+##############################################################################
 # VARIABLES
 ##############################################################################
 
@@ -43,11 +58,10 @@ GRID_SIZE_Y = 52
 TOP_LEFT = (26,28)
 
 SCREEN_WIDTH = 647
-SCREEN_HEIGHT = 502
+SCREEN_HEIGHT = 504
 
 BUTTON_X_VALUE = 556
-BUTTON_Y_VALUE  = 470
-
+BUTTON_Y_VALUE  = 472
 
 gridLinesOn = False
 
@@ -57,6 +71,7 @@ GAME_TIME_Y = BUTTON_Y_VALUE + 5
 # create the display surface object
 # of specific dimension.
 surface = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
+#surface.set_colorkey((255, 255, 255))  #White background sprites should now be transparent background!
 pygame.display.set_caption('Draughts - Mark Reed (c) 2024')
 
 COL_BLACK = (0,0,0)
@@ -71,6 +86,8 @@ muteImageName = "./images/Mute.jpg"
 muteImageGreyName = "./images/MuteGrey.jpg"
 infoImageName = "./images/Info.jpg"
 infoImageGreyName = "./images/InfoGrey.jpg"
+
+player1PieceImageName = "./images/player1Piece.png"
 
 A1_location = (62,50)  #Used to draw pieces in the correct place!
 PIECE_SIZE = 20
@@ -121,9 +138,17 @@ def TurnOffTimers():
 
 def LoadImages():
     global backImage,undoImage,undoGreyImage,muteImage,muteGreyImage
-    global infoImage,infoGreyImage
+    global infoImage,infoGreyImage,player1PieceImage
  
     backImage = pygame.image.load(backImageName).convert()
+
+    #Load an image with a white background and set the white to transparent.
+    #Will only work if the background is all properly white 255,255,255
+    player1PieceImage = pygame.image.load(player1PieceImageName)
+    player1PieceImage = pygame.transform.scale(player1PieceImage, (43, 43))  #change size first before doing alpha things
+    player1PieceImage.set_colorkey((255,255,255))
+    player1PieceImage.convert_alpha()
+    
     undoImage = pygame.image.load(undoImageName).convert()
     undoGreyImage = pygame.image.load(undoImageGreyName).convert()
     muteImage = pygame.image.load(muteImageName).convert()
@@ -199,6 +224,11 @@ theUndoButton = MyClickableImageButton(BUTTON_X_VALUE + 30*2,BUTTON_Y_VALUE,undo
 theMuteButton = MyClickableImageButton(BUTTON_X_VALUE + 30,BUTTON_Y_VALUE,muteImage,muteGreyImage,surface,MuteButtonCallback)
 theInfoButton = MyClickableImageButton(BUTTON_X_VALUE,BUTTON_Y_VALUE,infoImage,infoGreyImage,surface,InfoButtonCallback)
 
+someGamePiece = Piece(player1PieceImage,(30, 33))
+
+allPieces = []
+allPieces.append(someGamePiece)
+
 #game loop
 while running:
     # Fill the scree with white color - "blank it"
@@ -208,8 +238,10 @@ while running:
     surface.blit(backImage, (1, 1))
 
     DrawGreenLinesOverTheBoard(3)
-    
 
+    for piece in allPieces:
+        piece.DrawSelf()
+    
     theUndoButton.DrawSelf()
     theMuteButton.DrawSelf()
     theInfoButton.DrawSelf()

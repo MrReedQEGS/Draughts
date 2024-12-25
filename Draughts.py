@@ -176,9 +176,11 @@ def WhatSquareAreWeIn(aPosition):
 
 def HandleInput(running):
     
+
     global waitingForYesNo,draggingPiece
 
     for event in pygame.event.get():
+        print("hello")
 
         if event.type == pygame.QUIT:
             running = False

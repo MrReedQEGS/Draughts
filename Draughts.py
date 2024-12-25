@@ -12,9 +12,13 @@
 ##############################################################################
 
 #To do
-#Get a simple grid going
-#Starting pieces drawn
-#Ability to move a piece anywhere
+#Make it so the pieces go into the grid data structure when you create one.
+#
+#They need to move around in the data structure as we drag them.  This will allow
+#the game to check if a piece is already on a square.  A drag should fail and go back to the 
+#picked up location if the user tries to drop a piece on an occupied square
+#
+#The "bar" and the "box area" must also be in the grid or this will fail when we take pieces off the board.
 
 ##############################################################################
 # IMPORTS
@@ -38,18 +42,18 @@ BLACK_PIECE = 1
 WHITE_PIECE = 2
 theGameGrid = MyGameGrid(8,8,[EMPTY_SQUARE,BLACK_PIECE,WHITE_PIECE],0)
 
-pieceNum = 0
+RIGHT_MOUSE_BUTTON = 3
 
-DEBUG_ON = True
+DEBUG_ON = False
 
 GRID_SIZE_X = 52
 GRID_SIZE_Y = 52
 TOP_LEFT = (26,28)
 
-SCREEN_WIDTH = 647
+SCREEN_WIDTH = 678
 SCREEN_HEIGHT = 504
 
-BUTTON_X_VALUE = 556
+BUTTON_X_VALUE = 586
 BUTTON_Y_VALUE  = 472
 
 gridLinesOn = False
@@ -77,6 +81,7 @@ infoImageName = "./images/Info.jpg"
 infoImageGreyName = "./images/InfoGrey.jpg"
 
 player1PieceImageName = "./images/player1Piece.png"
+player2PieceImageName = "./images/player2Piece.png"
 
 PIECE_SIZE = 20
 draggingPiece = None
@@ -127,7 +132,7 @@ def TurnOffTimers():
 
 def LoadImages():
     global backImage,undoImage,undoGreyImage,muteImage,muteGreyImage
-    global infoImage,infoGreyImage,player1PieceImage
+    global infoImage,infoGreyImage,player1PieceImage,player2PieceImage
  
     backImage = pygame.image.load(backImageName).convert()
 
@@ -137,6 +142,11 @@ def LoadImages():
     player1PieceImage = pygame.transform.scale(player1PieceImage, (43, 43))  #change size first before doing alpha things
     player1PieceImage.set_colorkey((255,255,255))
     player1PieceImage.convert_alpha()
+
+    player2PieceImage = pygame.image.load(player2PieceImageName)
+    player2PieceImage = pygame.transform.scale(player2PieceImage, (43, 43))  #change size first before doing alpha things
+    player2PieceImage.set_colorkey((255,255,255))
+    player2PieceImage.convert_alpha()
     
     undoImage = pygame.image.load(undoImageName).convert()
     undoGreyImage = pygame.image.load(undoImageGreyName).convert()
@@ -176,15 +186,26 @@ def HandleInput(running):
         if event.type == pygame.MOUSEBUTTONDOWN:
             currentMousePos = pygame.mouse.get_pos()
             
-            #did we click on a piece?
-            for piece in allPieces:
-               if(piece.ClickedOnMe(currentMousePos)):
-                draggingPiece = piece
-                
-        if event.type == pygame.MOUSEBUTTONUP:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == RIGHT_MOUSE_BUTTON:
+                #print ("You pressed the right mouse button")
+                for piece in allPieces:
+                    if(piece.ClickedOnMe(currentMousePos)):
+                        piece._king = not piece._king
+            else:
+                #did we click on a piece?
+                for piece in allPieces:
+                    if(piece.ClickedOnMe(currentMousePos)):
+                        draggingPiece = piece
+                        #The last piece in the allpieces list is draw last, so move the dragged one to last
+                        #in the list to make it draw on top of every other piece as you drag it...simples!
+                        allPieces.remove(draggingPiece)
+                        allPieces.append(draggingPiece)
+
+           
+        elif event.type == pygame.MOUSEBUTTONUP:
             currentMousePos = pygame.mouse.get_pos()
             currentSquare = WhatSquareAreWeIn(currentMousePos)
-            print("Square dropped in : ", currentSquare)
+            #print("Square dropped in : ", currentSquare)
 
             #Let go of a piece if we have one
             if(draggingPiece != None):
@@ -193,17 +214,12 @@ def HandleInput(running):
                 dropLocation = [TOP_LEFT[0] + currentSquare[0]*GRID_SIZE_X+5,TOP_LEFT[1] + currentSquare[1]*GRID_SIZE_Y+5]
                 draggingPiece.SetPos(dropLocation)
                 draggingPiece = None
-                
-        
-             
+                  
     return running
 
 def UndoButtonCallback():
     print("undo pressed...")
-    #Testing a piece move
-    #for piece in allPieces:
-    #    currentPos = piece.GetPos()
-    #    piece.SetPos(([currentPos[0],currentPos[1] + 52]))
+    PutPiecesInTheBox()
     
 def MuteButtonCallback():
     global musicOn
@@ -225,6 +241,24 @@ def DrawGreenLinesOverTheBoard(width):
         for i in range(9):
             pygame.draw.line(surface,COL_GREEN,(TOP_LEFT[0], 27+i*GRID_SIZE_Y),(TOP_LEFT[0]+8*GRID_SIZE_X, TOP_LEFT[1]+i*GRID_SIZE_Y),width)
 
+def PutPiecesInTheBox():
+    global allPieces
+    allPieces = []
+    for i in range(8):
+        someGamePiece = Piece(player1PieceImage,[30+GRID_SIZE_X*9, 33+GRID_SIZE_Y*i],surface)
+        allPieces.append(someGamePiece)
+    for i in range(4):
+        someGamePiece = Piece(player1PieceImage,[30+GRID_SIZE_X*10, 33+GRID_SIZE_Y*i],surface)
+        allPieces.append(someGamePiece)
+    for i in range(4):
+        someGamePiece = Piece(player2PieceImage,[30+GRID_SIZE_X*10, 33+GRID_SIZE_Y*(4+i)],surface)
+        allPieces.append(someGamePiece)
+    for i in range(8):
+        someGamePiece = Piece(player2PieceImage,[30+GRID_SIZE_X*11, 33+GRID_SIZE_Y*i],surface)
+        allPieces.append(someGamePiece)
+    
+    
+
 ##############################################################################
 # MAIN
 ##############################################################################
@@ -237,12 +271,7 @@ theMuteButton = MyClickableImageButton(BUTTON_X_VALUE + 30,BUTTON_Y_VALUE,muteIm
 theInfoButton = MyClickableImageButton(BUTTON_X_VALUE,BUTTON_Y_VALUE,infoImage,infoGreyImage,surface,InfoButtonCallback)
 
 allPieces = []
-someGamePiece = Piece(pieceNum,player1PieceImage,[30, 33],surface)
-pieceNum = pieceNum + 1
-allPieces.append(someGamePiece)
-someGamePiece = Piece(pieceNum,player1PieceImage,[82, 33],surface)
-pieceNum = pieceNum + 1
-allPieces.append(someGamePiece)
+PutPiecesInTheBox()
 
 #game loop
 while running:
@@ -254,20 +283,24 @@ while running:
 
     DrawGreenLinesOverTheBoard(3)
 
-    for piece in allPieces:
-        piece.DrawSelf()
-    
     theUndoButton.DrawSelf()
     theMuteButton.DrawSelf()
     theInfoButton.DrawSelf()
 
     running = HandleInput(running)
    
+    #We may be dragging a particular piece!
+    currentMousePos = pygame.mouse.get_pos()    
+    if(draggingPiece != None):  
+        dragLocation = [currentMousePos[0]-GRID_SIZE_X//2,currentMousePos[1]-GRID_SIZE_Y//2]
+        draggingPiece.SetPos(dragLocation)
+
+    for piece in allPieces:
+        piece.DrawSelf()
+       
     if(running):
-        
         gameTimeSurface = my_font.render("Time elapsed : {}".format(gameTime), False, (0, 0, 0))
         surface.blit(gameTimeSurface, (GAME_TIME_X,GAME_TIME_Y))
-
         pygame.display.flip()
 
 TurnOffTimers()

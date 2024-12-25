@@ -38,8 +38,20 @@ theGameGrid = MyGameGrid(8,8,[EMPTY_SQUARE,BLACK_PIECE,WHITE_PIECE],0)
 
 DEBUG_ON = False
 
-SCREEN_WIDTH = 560
-SCREEN_HEIGHT = 500
+GRID_SIZE_X = 52
+GRID_SIZE_Y = 52
+TOP_LEFT = (26,28)
+
+SCREEN_WIDTH = 471
+SCREEN_HEIGHT = 502
+
+BUTTON_Y_VALUE  = 470
+BUTTON_X_VALUE = 381
+
+gridLinesOn = False
+
+GAME_TIME_X = 2
+GAME_TIME_Y = BUTTON_Y_VALUE + 5
 
 # create the display surface object
 # of specific dimension.
@@ -58,10 +70,6 @@ muteImageName = "./images/Mute.jpg"
 muteImageGreyName = "./images/MuteGrey.jpg"
 infoImageName = "./images/Info.jpg"
 infoImageGreyName = "./images/InfoGrey.jpg"
-
-GRID_SIZE_X = 52
-GRID_SIZE_Y = 52
-TOP_LEFT = (25,27)
 
 A1_location = (62,50)  #Used to draw pieces in the correct place!
 PIECE_SIZE = 20
@@ -173,13 +181,15 @@ def MuteButtonCallback():
         pygame.mixer.music.unpause()
             
 def InfoButtonCallback():
-    print("Info pressed...")
+    global gridLinesOn
+    gridLinesOn = not gridLinesOn
 
 def DrawGreenLinesOverTheBoard(width): 
-    for i in range(9):
-        pygame.draw.line(surface,COL_GREEN,(TOP_LEFT[0]+i*GRID_SIZE_X, TOP_LEFT[1]),(TOP_LEFT[0]+i*GRID_SIZE_X, TOP_LEFT[0] + 8*GRID_SIZE_Y),width)
-    for i in range(9):
-        pygame.draw.line(surface,COL_GREEN,(TOP_LEFT[0], 27+i*GRID_SIZE_Y),(TOP_LEFT[0]+8*GRID_SIZE_X, TOP_LEFT[1]+i*GRID_SIZE_Y),width)
+    if(gridLinesOn):
+        for i in range(9):
+            pygame.draw.line(surface,COL_GREEN,(TOP_LEFT[0]+i*GRID_SIZE_X, TOP_LEFT[1]),(TOP_LEFT[0]+i*GRID_SIZE_X, TOP_LEFT[0] + 8*GRID_SIZE_Y),width)
+        for i in range(9):
+            pygame.draw.line(surface,COL_GREEN,(TOP_LEFT[0], 27+i*GRID_SIZE_Y),(TOP_LEFT[0]+8*GRID_SIZE_X, TOP_LEFT[1]+i*GRID_SIZE_Y),width)
 
 
 ##############################################################################
@@ -189,9 +199,9 @@ pygame.init()
 
 LoadImages()
 
-theUndoButton = MyClickableImageButton(426,455,undoImage,undoGreyImage,surface,UndoButtonCallback)
-theMuteButton = MyClickableImageButton(396,455,muteImage,muteGreyImage,surface,MuteButtonCallback)
-theInfoButton = MyClickableImageButton(366,455,infoImage,infoGreyImage,surface,InfoButtonCallback)
+theUndoButton = MyClickableImageButton(BUTTON_X_VALUE + 30*2,BUTTON_Y_VALUE,undoImage,undoGreyImage,surface,UndoButtonCallback)
+theMuteButton = MyClickableImageButton(BUTTON_X_VALUE + 30,BUTTON_Y_VALUE,muteImage,muteGreyImage,surface,MuteButtonCallback)
+theInfoButton = MyClickableImageButton(BUTTON_X_VALUE,BUTTON_Y_VALUE,infoImage,infoGreyImage,surface,InfoButtonCallback)
 
 #game loop
 while running:
@@ -199,7 +209,7 @@ while running:
     surface.fill(BACK_FILL_COLOUR)
 
     # Using blit to copy the background grid onto the blank screen
-    surface.blit(backImage, (0, 0))
+    surface.blit(backImage, (1, 1))
 
     DrawGreenLinesOverTheBoard(3)
     
@@ -213,7 +223,7 @@ while running:
     if(running):
         
         gameTimeSurface = my_font.render("Time elapsed : {}".format(gameTime), False, (0, 0, 0))
-        surface.blit(gameTimeSurface, (30,460))
+        surface.blit(gameTimeSurface, (GAME_TIME_X,GAME_TIME_Y))
 
         pygame.display.flip()
 

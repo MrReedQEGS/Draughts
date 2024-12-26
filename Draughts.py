@@ -80,7 +80,7 @@ muteImageGreyName = "./images/MuteGrey.jpg"
 infoImageName = "./images/Info.jpg"
 infoImageGreyName = "./images/InfoGrey.jpg"
 
-player1PieceImageName = "./images/player1PieceKing.png"
+player1PieceImageName = "./images/player1Piece.png"
 player2PieceImageName = "./images/player2Piece.png"
 
 PIECE_SIZE = 20

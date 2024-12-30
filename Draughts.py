@@ -57,8 +57,9 @@ TOP_LEFT = (26,28)
 SCREEN_WIDTH = 678
 SCREEN_HEIGHT = 504
 
-BUTTON_X_VALUE = 586
+BUTTON_X_VALUE = 526
 BUTTON_Y_VALUE  = 472
+BUTTON_WIDTH = 30
 
 gridLinesOn = False
 
@@ -83,6 +84,10 @@ muteImageName = "./images/Mute.jpg"
 muteImageGreyName = "./images/MuteGrey.jpg"
 infoImageName = "./images/Info.jpg"
 infoImageGreyName = "./images/InfoGrey.jpg"
+eyeImageName = "./images/Eye.jpg"
+eyeImageGreyName = "./images/EyeGrey.jpg"
+restartImageName = "./images/Restart.jpg"
+restartImageGreyName = "./images/RestartGrey.jpg"
 
 player1PieceImageName = "./images/player1Piece.png"
 player2PieceImageName = "./images/player2Piece.png"
@@ -117,6 +122,7 @@ def OneSecondCallback():
 gameTime = 0
 gameTimeSurface = my_font.render("Time elapsed : {}".format(gameTime), False, (0, 0, 0))
 DELAY_1 = 1
+
 myOneSecondTimer = None
 if(myOneSecondTimer == None):
     myOneSecondTimer = perpetualTimer(DELAY_1,OneSecondCallback)
@@ -136,6 +142,7 @@ def TurnOffTimers():
 
 def LoadImages():
     global backImage,undoImage,undoGreyImage,muteImage,muteGreyImage
+    global eyeImage,eyeGreyImage,restartImage,restartGreyImage
     global infoImage,infoGreyImage,player1PieceImage,player2PieceImage
  
     backImage = pygame.image.load(backImageName).convert()
@@ -158,6 +165,10 @@ def LoadImages():
     muteGreyImage = pygame.image.load(muteImageGreyName).convert()
     infoImage = pygame.image.load(infoImageName).convert()
     infoGreyImage = pygame.image.load(infoImageGreyName).convert()
+    eyeImage = pygame.image.load(eyeImageName).convert()
+    eyeGreyImage = pygame.image.load(eyeImageGreyName).convert()
+    restartImage = pygame.image.load(restartImageName).convert()
+    restartGreyImage = pygame.image.load(restartImageGreyName).convert()
         
 def WhatSquareAreWeIn(aPosition):
     #Find out what square somebody clicked on.
@@ -221,10 +232,24 @@ def HandleInput(running):
                   
     return running
 
+def EyeButtonCallback():
+    global gridLinesOn
+    gridLinesOn = not gridLinesOn
+
 def UndoButtonCallback():
     print("undo pressed...")
-    PutPiecesInTheBox()
-    
+
+def RestartButtonCallback():
+
+    #Use a TKINTER message box :)
+    #Turn events off and then back on to stop pygame picking up the mouse click too!
+    pygame.event.set_blocked(pygame.MOUSEBUTTONUP) 
+    answer = messagebox.askyesno("Question","Do you really to reset the whole game?")
+    if(answer):
+        PutPiecesInTheBox()
+    pygame.event.set_allowed(None)
+
+
 def MuteButtonCallback():
     global musicOn
     if(musicOn):
@@ -235,8 +260,7 @@ def MuteButtonCallback():
         pygame.mixer.music.unpause()
             
 def InfoButtonCallback():
-    global gridLinesOn
-    gridLinesOn = not gridLinesOn
+   print("Info pressed")
 
 def DrawGreenLinesOverTheBoard(width): 
     if(gridLinesOn):
@@ -270,9 +294,11 @@ pygame.init()
 
 LoadImages()
 
-theUndoButton = MyClickableImageButton(BUTTON_X_VALUE + 30*2,BUTTON_Y_VALUE,undoImage,undoGreyImage,surface,UndoButtonCallback)
-theMuteButton = MyClickableImageButton(BUTTON_X_VALUE + 30,BUTTON_Y_VALUE,muteImage,muteGreyImage,surface,MuteButtonCallback)
-theInfoButton = MyClickableImageButton(BUTTON_X_VALUE,BUTTON_Y_VALUE,infoImage,infoGreyImage,surface,InfoButtonCallback)
+theRestartButton = MyClickableImageButton(BUTTON_X_VALUE,BUTTON_Y_VALUE,restartImage,restartGreyImage,surface,RestartButtonCallback)
+theEyeButton = MyClickableImageButton(BUTTON_X_VALUE + BUTTON_WIDTH*1,BUTTON_Y_VALUE,eyeImage,eyeGreyImage,surface,EyeButtonCallback)
+theInfoButton = MyClickableImageButton(BUTTON_X_VALUE + BUTTON_WIDTH*2,BUTTON_Y_VALUE,infoImage,infoGreyImage,surface,InfoButtonCallback)
+theMuteButton = MyClickableImageButton(BUTTON_X_VALUE + BUTTON_WIDTH*3,BUTTON_Y_VALUE,muteImage,muteGreyImage,surface,MuteButtonCallback)
+theUndoButton = MyClickableImageButton(BUTTON_X_VALUE + BUTTON_WIDTH*4,BUTTON_Y_VALUE,undoImage,undoGreyImage,surface,UndoButtonCallback)
 
 allPieces = []
 PutPiecesInTheBox()
@@ -287,9 +313,11 @@ while running:
 
     DrawGreenLinesOverTheBoard(3)
 
-    theUndoButton.DrawSelf()
-    theMuteButton.DrawSelf()
+    theRestartButton.DrawSelf()
+    theEyeButton.DrawSelf()
     theInfoButton.DrawSelf()
+    theMuteButton.DrawSelf()
+    theUndoButton.DrawSelf()
 
     running = HandleInput(running)
    
